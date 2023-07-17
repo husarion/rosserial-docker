@@ -1,0 +1,28 @@
+# Quick Start
+# $ docker compose -f compose.minimal.ros.yaml up
+
+services:
+
+  ros-master:
+    image: ros:noetic-ros-core
+    tty: true
+    command: roscore
+
+  rosserial:
+    build:
+      context: ..
+    tty: true
+    devices:
+      - ${SERIAL_PORT}
+    environment:
+      - ROS_MASTER_URI=http://ros-master:11311
+    # command: rosrun rosserial_python serial_node.py _port:=${SERIAL_PORT} _baud:=525000 # can not use --wait flag
+    command: roslaunch --wait /ros_ws/serial_node.launch port:=${SERIAL_PORT} baud:=525000 # launch file just as a wrapper allowing me to use --wait flag
+
+  teleop-twist-keyboard:
+    build: .
+    container_name: astra
+    tty: true
+    environment:
+      - ROS_MASTER_URI=http://ros-master:11311
+    command: sleep 3600
